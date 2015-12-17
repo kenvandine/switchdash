@@ -21,6 +21,12 @@ Game
         property int colorCounter: 0
         property int score: 0
         property bool gameOver: false
+
+        onGameOverChanged: {
+            if (gameOver)
+                game.gameState = Bacon2D.Paused
+        }
+
         Rectangle
         {
             id: upperRect
@@ -61,8 +67,6 @@ Game
                                 player.destroy();
                                 target.destroy();
                                 gameScene.gameOver = true;
-                                blockSpawner.running = false;
-                                gameOverText.visible = true;
                             }
                         }
 
@@ -83,8 +87,6 @@ Game
                         }
                     }
                 }
-
-
 
                 PropertyAnimation {
                     id: flash
@@ -180,34 +182,30 @@ Game
             verticalAlignment: Text.AlignVCenter
             font.pointSize: 50
             text: "Game Over"
-            visible: false
+            visible: gameScene.gameOver
         }
 
-        Timer
-        {
-            id: blockSpawner
-            running: true
-            repeat: true
-            interval: 1000
-            onTriggered:
-            {
-                var decider= Math.floor(Math.random()*(11-8+1)+8);
-                var isOnTop = 0;
-                if (decider >= 8 && decider <=9)
-                    isOnTop = 1;
-                else
-                    isOnTop = 0;
-
-                var newBlock = block.createObject(scrollLayer);
-                if (isOnTop)
-                {
-                    newBlock.color = "white";
-                    newBlock.y = lowerRect.y - newBlock.height;
-                }
-                else
-                {
-                    newBlock.color = "black";
-                    newBlock.y = lowerRect.y;
+        Entity {
+            updateInterval: 1000
+            behavior: ScriptBehavior {
+                script: {
+                    var decider= Math.floor(Math.random()*(11-8+1)+8);
+                    var isOnTop = 0;
+                    if (decider >= 8 && decider <=9)
+                        isOnTop = 1;
+                    else
+                        isOnTop = 0;
+                    var newBlock = block.createObject(scrollLayer);
+                    if (isOnTop)
+                    {
+                        newBlock.color = "white";
+                        newBlock.y = lowerRect.y - newBlock.height;
+                    }
+                    else
+                    {
+                        newBlock.color = "black";
+                        newBlock.y = lowerRect.y;
+                    }
                 }
             }
         }
